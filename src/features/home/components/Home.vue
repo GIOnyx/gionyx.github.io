@@ -737,9 +737,9 @@ watch(
 .sticky-note {
   position: absolute;
   top: 50%;
-  left: 200px;
-  width: 280px;
-  padding: 28px 24px 22px;
+  left: 250px;
+  width: 320px;
+  padding: 34px 28px 28px;
   background: var(--sticky-bg);
   border-radius: 4px;
   border: 1px solid var(--sand-border);
@@ -766,26 +766,26 @@ watch(
   box-shadow: 0 2px 6px rgba(45,42,36,0.25), inset 0 1px 1px rgba(255,255,255,0.3);
 }
 .sticky-avatar {
-  width: 110px; height: 110px;
+  width: 130px; height: 130px;
   border-radius: 50%;
   object-fit: cover;
   object-position: center 24%;
   border: 3px solid var(--sand-border);
-  margin: 0 auto 18px;
+  margin: 0 auto 20px;
 }
 .sticky-name {
-  font-size: 15px;
+  font-size: 18px;
   font-weight: 800;
   text-align: center;
   line-height: 1.3;
-  margin-bottom: 6px;
+  margin-bottom: 8px;
 }
 .sticky-role {
-  font-size: 12px;
+  font-size: 13.5px;
   color: var(--sticky-text-soft);
   text-align: center;
   line-height: 1.4;
-  margin-bottom: 14px;
+  margin-bottom: 8px;
 }
 .sticky-status {
   display: flex;
