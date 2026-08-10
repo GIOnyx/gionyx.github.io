@@ -211,12 +211,14 @@ const executeCommand = (cmd: string) => {
 
   switch (cleanCmd) {
     case "clear":
-      terminalLines.value = [];
+      terminalLines.value = [
+        { type: "output", text: "Welcome to GIOnyx OS Terminal v1.0.0" },
+        { type: "output", text: "Type 'help' to see list of available commands." }
+      ];
       break;
     case "help":
       terminalLines.value.push(
         { type: "output", text: "Available commands:" },
-        { type: "output", text: "  neofetch  - Display system metadata" },
         { type: "output", text: "  about     - Gregory's background bio" },
         { type: "output", text: "  skills    - Output technical toolkit" },
         { type: "output", text: "  projects  - Show projects with links" },
@@ -252,18 +254,6 @@ const executeCommand = (cmd: string) => {
         { type: "output", text: "Email: gregoryivanonyx.badinas@gmail.com" },
         { type: "output", text: "GitHub: github.com/GIOnyx" },
         { type: "output", text: "LinkedIn: linkedin.com/in/gregory-ivan-onyx-badinas-4721092b3" }
-      );
-      break;
-    case "neofetch":
-      terminalLines.value.push(
-        { type: "output", text: "      .---.       OS: GIOnyx WebOS v1.0.0" },
-        { type: "output", text: "     /     \\      Kernel: Vue 3 + Three.js" },
-        { type: "output", text: "     \\.@-@./      Shell: bash (interactive)" },
-        { type: "output", text: "     /`\\_/`\\      Uptime: 2 mins" },
-        { type: "output", text: "    //  _  \\\\     CPU: WebGL Shader Core" },
-        { type: "output", text: "   | \\     / |    Developer: Gregory Ivan Onyx Badinas" },
-        { type: "output", text: "  ((  `---'  ))   Focus: Systems & App Support" },
-        { type: "output", text: "   `--'   `--'" }
       );
       break;
     default:
@@ -931,8 +921,8 @@ watch(
   position: absolute;
   top: calc(var(--menubar-h) + 16px + 235px + 16px);
   left: 250px;
-  width: 320px;
-  height: 230px;
+  width: 480px;
+  height: 460px;
   background: rgba(45, 42, 36, 0.94);
   backdrop-filter: blur(20px);
   -webkit-backdrop-filter: blur(20px);
