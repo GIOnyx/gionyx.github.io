@@ -864,8 +864,8 @@ watch(
 /* ═══════════ STICKY NOTE ═══════════ */
 .sticky-note {
   position: absolute;
-  top: calc(var(--menubar-h) + 16px);
-  left: 250px;
+  top: calc(var(--menubar-h) + 50px);
+  left: 410px;
   width: 320px;
   padding: 24px 24px 18px;
   background: var(--sticky-bg);
@@ -919,9 +919,9 @@ watch(
 /* ═══════════ DESKTOP TERMINAL WIDGET ═══════════ */
 .desktop-terminal {
   position: absolute;
-  top: calc(var(--menubar-h) + 16px + 235px + 16px);
+  top: calc(var(--menubar-h) + 50px + 235px + 20px);
   left: 250px;
-  width: 480px;
+  width: 640px;
   height: 460px;
   background: rgba(45, 42, 36, 0.94);
   backdrop-filter: blur(20px);
