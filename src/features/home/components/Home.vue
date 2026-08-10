@@ -865,7 +865,7 @@ watch(
 .sticky-note {
   position: absolute;
   top: calc(var(--menubar-h) + 50px);
-  left: 410px;
+  left: 280px;
   width: 320px;
   padding: 24px 24px 18px;
   background: var(--sticky-bg);
@@ -920,7 +920,7 @@ watch(
 .desktop-terminal {
   position: absolute;
   top: calc(var(--menubar-h) + 50px + 235px + 20px);
-  left: 250px;
+  left: 120px;
   width: 640px;
   height: 460px;
   background: rgba(45, 42, 36, 0.94);
