@@ -183,6 +183,107 @@ const updateCursor = () => {
   }
 };
 
+// ── Desktop Terminal Widget Setup ──
+interface TerminalLine {
+  type: "input" | "output" | "error";
+  text: string;
+}
+
+const terminalLines = ref<TerminalLine[]>([
+  { type: "output", text: "Welcome to GIOnyx OS Terminal v1.0.0" },
+  { type: "output", text: "Type 'help' to see list of available commands." }
+]);
+const terminalInput = ref("");
+const terminalInputRef = ref<HTMLInputElement | null>(null);
+const terminalContainerRef = ref<HTMLDivElement | null>(null);
+
+const focusTerminal = () => {
+  if (terminalInputRef.value) {
+    terminalInputRef.value.focus();
+  }
+};
+
+const executeCommand = (cmd: string) => {
+  const cleanCmd = cmd.trim().toLowerCase();
+  if (!cleanCmd) return;
+
+  terminalLines.value.push({ type: "input", text: `guest@gionyx:~$ ${cmd}` });
+
+  switch (cleanCmd) {
+    case "clear":
+      terminalLines.value = [];
+      break;
+    case "help":
+      terminalLines.value.push(
+        { type: "output", text: "Available commands:" },
+        { type: "output", text: "  neofetch  - Display system metadata" },
+        { type: "output", text: "  about     - Gregory's background bio" },
+        { type: "output", text: "  skills    - Output technical toolkit" },
+        { type: "output", text: "  projects  - Show projects with links" },
+        { type: "output", text: "  contact   - Display email/social details" },
+        { type: "output", text: "  clear     - Clear terminal logs" }
+      );
+      break;
+    case "about":
+      terminalLines.value.push(
+        { type: "output", text: "Gregory Ivan Onyx Badinas" },
+        { type: "output", text: "BSIT Student · Full-Stack & Mobile Developer" },
+        { type: "output", text: "Third-year student focusing on application support, workflow automation, and backend solutions (Java/React)." }
+      );
+      break;
+    case "skills":
+      terminalLines.value.push(
+        { type: "output", text: "Languages: Java, C, Kotlin, Python, JS/TS, PHP, SQL" },
+        { type: "output", text: "Frameworks: Spring Boot, React, Django, Android SDK" },
+        { type: "output", text: "Platforms: ServiceNow (Flow/UI Builder), n8n, Supabase" }
+      );
+      break;
+    case "projects":
+      terminalLines.value.push(
+        { type: "output", text: "Featured Projects:" },
+        { type: "output", text: "  - CiteWise (Academic workflow helper, Spring Boot/React)" },
+        { type: "output", text: "  - InStock (Inventory pantry tracker, Kotlin/Spring)" },
+        { type: "output", text: "  - Hygienix (Gamified hygiene portal, React)" },
+        { type: "output", text: "Type the project names in your browser or click them in Projects.app to explore!" }
+      );
+      break;
+    case "contact":
+      terminalLines.value.push(
+        { type: "output", text: "Email: gregoryivanonyx.badinas@gmail.com" },
+        { type: "output", text: "GitHub: github.com/GIOnyx" },
+        { type: "output", text: "LinkedIn: linkedin.com/in/gregory-ivan-onyx-badinas-4721092b3" }
+      );
+      break;
+    case "neofetch":
+      terminalLines.value.push(
+        { type: "output", text: "      .---.       OS: GIOnyx WebOS v1.0.0" },
+        { type: "output", text: "     /     \\      Kernel: Vue 3 + Three.js" },
+        { type: "output", text: "     \\.@-@./      Shell: bash (interactive)" },
+        { type: "output", text: "     /`\\_/`\\      Uptime: 2 mins" },
+        { type: "output", text: "    //  _  \\\\     CPU: WebGL Shader Core" },
+        { type: "output", text: "   | \\     / |    Developer: Gregory Ivan Onyx Badinas" },
+        { type: "output", text: "  ((  `---'  ))   Focus: Systems & App Support" },
+        { type: "output", text: "   `--'   `--'" }
+      );
+      break;
+    default:
+      terminalLines.value.push({ type: "error", text: `gionyx-sh: command not found: ${cmd}. Type 'help' for support.` });
+  }
+
+  // Scroll to bottom
+  gsap.delayedCall(0.05, () => {
+    if (terminalContainerRef.value) {
+      terminalContainerRef.value.scrollTop = terminalContainerRef.value.scrollHeight;
+    }
+  });
+};
+
+const handleTerminalSubmit = () => {
+  const cmd = terminalInput.value;
+  terminalInput.value = "";
+  executeCommand(cmd);
+};
+
 onMounted(() => {
   // Initialize Three.js WebGL
   if (threeCanvasRef.value && !threeInitialized.value) {
@@ -290,6 +391,43 @@ watch(
         <h2 class="sticky-name">Gregory Ivan Onyx Badinas</h2>
         <p class="sticky-role">BSIT Student · Full-Stack Dev · Mobile Dev</p>
       </aside>
+
+      <!-- Terminal Widget -->
+      <article class="desktop-terminal" @click="focusTerminal">
+        <header class="terminal-header">
+          <span class="terminal-dots">
+            <span class="dot close"></span>
+            <span class="dot minimize"></span>
+            <span class="dot maximize"></span>
+          </span>
+          <span class="terminal-title">Terminal.app</span>
+        </header>
+        <div class="terminal-body" ref="terminalContainerRef" data-lenis-prevent>
+          <div class="terminal-history">
+            <div
+              v-for="(line, idx) in terminalLines"
+              :key="idx"
+              :class="['terminal-line', line.type]"
+            >
+              {{ line.text }}
+            </div>
+          </div>
+          <form class="terminal-prompt" @submit.prevent="handleTerminalSubmit">
+            <span class="prompt-symbol">guest@gionyx:~$</span>
+            <input
+              ref="terminalInputRef"
+              v-model="terminalInput"
+              type="text"
+              class="prompt-input"
+              autofocus
+              autocomplete="off"
+              autocorrect="off"
+              autocapitalize="off"
+              spellcheck="false"
+            />
+          </form>
+        </div>
+      </article>
     </main>
 
     <!-- ═══════════ APP WINDOWS ═══════════ -->
@@ -736,23 +874,23 @@ watch(
 /* ═══════════ STICKY NOTE ═══════════ */
 .sticky-note {
   position: absolute;
-  top: 50%;
+  top: calc(var(--menubar-h) + 16px);
   left: 250px;
   width: 320px;
-  padding: 34px 28px 28px;
+  padding: 24px 24px 18px;
   background: var(--sticky-bg);
   border-radius: 4px;
   border: 1px solid var(--sand-border);
   box-shadow:
     3px 4px 16px rgba(45,42,36,0.12);
-  transform: translateY(-50%) rotate(-2.5deg);
+  transform: rotate(-1.5deg);
   z-index: 50;
   color: var(--sticky-text);
   transition: transform var(--transition-bounce), box-shadow 200ms ease;
   pointer-events: auto;
 }
 .sticky-note:hover {
-  transform: translateY(-50%) rotate(0deg) scale(1.03);
+  transform: rotate(0deg) scale(1.03);
   box-shadow: 5px 8px 28px rgba(45,42,36,0.20);
 }
 .sticky-pin {
@@ -766,26 +904,117 @@ watch(
   box-shadow: 0 2px 6px rgba(45,42,36,0.25), inset 0 1px 1px rgba(255,255,255,0.3);
 }
 .sticky-avatar {
-  width: 130px; height: 130px;
+  width: 110px; height: 110px;
   border-radius: 50%;
   object-fit: cover;
   object-position: center 24%;
   border: 3px solid var(--sand-border);
-  margin: 0 auto 20px;
+  margin: 0 auto 12px;
 }
 .sticky-name {
-  font-size: 18px;
+  font-size: 16px;
   font-weight: 800;
   text-align: center;
   line-height: 1.3;
-  margin-bottom: 8px;
+  margin-bottom: 6px;
 }
 .sticky-role {
-  font-size: 13.5px;
+  font-size: 12px;
   color: var(--sticky-text-soft);
   text-align: center;
   line-height: 1.4;
-  margin-bottom: 8px;
+  margin-bottom: 0px;
+}
+
+/* ═══════════ DESKTOP TERMINAL WIDGET ═══════════ */
+.desktop-terminal {
+  position: absolute;
+  top: calc(var(--menubar-h) + 16px + 235px + 16px);
+  left: 250px;
+  width: 320px;
+  height: 230px;
+  background: rgba(45, 42, 36, 0.94);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  border: 1px solid var(--sand-border);
+  border-radius: 8px;
+  box-shadow: 0 8px 32px rgba(45,42,36,0.18);
+  z-index: 45;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  pointer-events: auto;
+  font-family: "Courier New", Courier, monospace;
+}
+.terminal-header {
+  flex-shrink: 0;
+  height: 28px;
+  background: rgba(45, 42, 36, 0.5);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+  display: flex;
+  align-items: center;
+  padding: 0 10px;
+  justify-content: space-between;
+}
+.terminal-dots {
+  display: flex;
+  gap: 5px;
+}
+.terminal-dots .dot {
+  width: 8px; height: 8px;
+  border-radius: 50%;
+}
+.terminal-dots .dot.close    { background: var(--dot-close); opacity: 0.6; }
+.terminal-dots .dot.minimize { background: var(--dot-minimize); opacity: 0.6; }
+.terminal-dots .dot.maximize { background: var(--dot-maximize); opacity: 0.6; }
+
+.terminal-title {
+  color: #a9b0b7;
+  font-size: 10px;
+  font-weight: 700;
+}
+.terminal-body {
+  flex: 1;
+  padding: 10px 12px;
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  font-size: 11px;
+  line-height: 1.4;
+  color: #4af626; /* matrix green */
+}
+.terminal-body::-webkit-scrollbar { width: 5px; }
+.terminal-body::-webkit-scrollbar-thumb { background: rgba(255, 255, 255, 0.15); border-radius: 3px; }
+.terminal-history {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+.terminal-line.input {
+  color: #ffffff;
+}
+.terminal-line.error {
+  color: #ff5f56;
+}
+.terminal-prompt {
+  display: flex;
+  gap: 6px;
+  align-items: center;
+}
+.prompt-symbol {
+  color: #34bfff;
+}
+.prompt-input {
+  flex: 1;
+  background: transparent;
+  border: none;
+  outline: none;
+  color: #4af626;
+  font-family: inherit;
+  font-size: inherit;
+  padding: 0;
+  caret-color: #4af626;
 }
 .sticky-status {
   display: flex;
@@ -1334,6 +1563,10 @@ watch(
   opacity: 0;
   transform: rotate(-2.5deg) scale(0.7) translateY(20px);
 }
+.booting .desktop-terminal {
+  opacity: 0;
+  transform: scale(0.7) translateY(20px);
+}
 .booting .dock {
   transform: translateX(-50%) translateY(100%);
   opacity: 0;
@@ -1345,6 +1578,9 @@ watch(
 }
 .sticky-note {
   transition: transform var(--transition-bounce) 300ms, opacity 400ms ease 300ms, box-shadow 200ms ease;
+}
+.desktop-terminal {
+  transition: transform var(--transition-bounce) 400ms, opacity 400ms ease 400ms, box-shadow 200ms ease;
 }
 .dock {
   transition: transform 500ms cubic-bezier(0.34, 1.4, 0.64, 1) 200ms, opacity 400ms ease 200ms;
@@ -1361,6 +1597,14 @@ watch(
     transform: rotate(-1.5deg);
   }
   .sticky-note:hover { transform: rotate(0deg) scale(1.02); }
+
+  .desktop-terminal {
+    position: relative;
+    top: auto; left: auto;
+    width: 260px;
+    height: 220px;
+    margin: 0 auto 24px;
+  }
 
   .desktop {
     flex-direction: column;

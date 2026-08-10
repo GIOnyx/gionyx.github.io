@@ -26,8 +26,8 @@ The portfolio codebase has been restructured to use a **Vue 3 + Vite + Three.js*
 - **Fix**:
   1. Added `lab.group.visible = false` inside the default layout initialization in `three/index.ts` to hide the pod base entirely.
   2. Removed the desktop icon grid from the home screen wrapper template in `Home.vue`, clean-keeping all navigations in the bottom dock.
-  3. Vertically centered the sticky note (`top: 50%; transform: translateY(-50%) rotate(-2.5deg)`) and moved it right to `left: 200px;`.
-  4. Removed "Open to internship" and description texts from the sticky note, and increased the profile picture size to `110px`.
+  3. Vertically centered the sticky note (`top: 50%; transform: translateY(-50%) rotate(-2.5deg)`) and moved it right to `left: 250px;`.
+  4. Made the sticky note widget larger (`width: 320px; padding: 34px 28px 28px;`) and increased the profile photo width to `130px`.
   5. Injected and mapped the sand-charcoal color variables (`--sand-bg`, `--sand-card`, `--sand-border`, `--text-color`) inside `Home.vue` style block to match David's exact design system variables.
 
 ### Redirection, Maximize and Scroll Fixes
