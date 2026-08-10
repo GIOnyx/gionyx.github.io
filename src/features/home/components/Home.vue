@@ -147,6 +147,7 @@ const onDragStart = (e: MouseEvent | TouchEvent, app: string) => {
     offsetY: clientY - rect.top,
   };
 
+  win.classList.add("dragging");
   win.style.transform = "none";
   win.style.left = rect.left + "px";
   win.style.top = rect.top + "px";
@@ -167,6 +168,9 @@ const onDragMove = (e: MouseEvent | TouchEvent) => {
 };
 
 const onDragEnd = () => {
+  if (dragState) {
+    dragState.win.classList.remove("dragging");
+  }
   dragState = null;
 };
 
@@ -1091,6 +1095,9 @@ watch(
     visibility 0ms 0ms;
 }
 .app-window.maximized.open { transform: none !important; }
+.app-window.dragging {
+  transition: none !important;
+}
 
 .win-large  { width: 820px; height: 580px; }
 .win-compact { width: 520px; height: 460px; }
