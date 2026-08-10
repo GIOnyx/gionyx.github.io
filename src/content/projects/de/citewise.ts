@@ -6,7 +6,7 @@ import type { ProjectContent } from "../../types";
 export default {
   title: "CiteWise",
   theme: "dark",
-  tags: ["spring-boot", "react", "supabase", "n8n"],
+  tags: ["spring-boot", "react", "supabase", "n8n", "antigravity"],
   videoBorder: false,
   live: "https://github.com/sophie546/CiteWise.git",
   description:

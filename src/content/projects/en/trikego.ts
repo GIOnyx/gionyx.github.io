@@ -6,7 +6,7 @@ import type { ProjectContent } from "../../types";
 export default {
   title: "TrikeGo",
   theme: "dark",
-  tags: ["django", "supabase", "python", "css"],
+  tags: ["django", "supabase", "python", "css", "antigravity"],
   videoBorder: false,
   live: "https://csit327-g1-trikego.onrender.com",
   description:

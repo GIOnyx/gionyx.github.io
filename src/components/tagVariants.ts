@@ -27,7 +27,8 @@ export type TagVariant =
   | "python"
   | "figma"
   | "ui-ux"
-  | "prototyping";
+  | "prototyping"
+  | "antigravity";
 
 export const tagLabels = {
   three: "Three.js",
@@ -59,4 +60,5 @@ export const tagLabels = {
   figma: "Figma",
   "ui-ux": "UI/UX",
   prototyping: "Prototyping",
+  antigravity: "Antigravity",
 } as const satisfies Record<TagVariant, string>;

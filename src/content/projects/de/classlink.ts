@@ -6,7 +6,7 @@ import type { ProjectContent } from "../../types";
 export default {
   title: "ClassLink",
   theme: "dark",
-  tags: ["spring-boot", "react", "java", "javascript"],
+  tags: ["spring-boot", "react", "java", "javascript", "antigravity"],
   videoBorder: false,
   live: "https://github.com/GIOnyx/ClassLink.git",
   description:

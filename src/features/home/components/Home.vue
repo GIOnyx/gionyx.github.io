@@ -233,23 +233,25 @@ const executeCommand = (cmd: string) => {
     case "about":
       terminalLines.value.push(
         { type: "output", text: "Gregory Ivan Onyx Badinas" },
-        { type: "output", text: "BSIT Student · Full-Stack & Mobile Developer" },
-        { type: "output", text: "Third-year student focusing on application support, workflow automation, and backend solutions (Java/React)." }
+        { type: "output", text: "BSIT Student & AI-powered Coding Assistant" },
+        { type: "output", text: "Fourth-year student with a strong foundation in full-stack application development, systems support, and automated pipelines." }
       );
       break;
     case "skills":
       terminalLines.value.push(
         { type: "output", text: "Languages: Java, C, Kotlin, Python, JS/TS, PHP, SQL" },
         { type: "output", text: "Frameworks: Spring Boot, React, Django, Android SDK" },
-        { type: "output", text: "Platforms: ServiceNow (Flow/UI Builder), n8n, Supabase" }
+        { type: "output", text: "Platforms: ServiceNow, n8n (AI pipelines), Supabase" },
+        { type: "output", text: "AI Tools: Antigravity, Gemini, Claude, GitHub Copilot" }
       );
       break;
     case "projects":
       terminalLines.value.push(
         { type: "output", text: "Featured Projects:" },
-        { type: "output", text: "  - CiteWise (Academic workflow helper, Spring Boot/React)" },
-        { type: "output", text: "  - InStock (Inventory pantry tracker, Kotlin/Spring)" },
-        { type: "output", text: "  - Hygienix (Gamified hygiene portal, React)" },
+        { type: "output", text: "  - CiteWise (Academic workflows, Spring Boot/React/n8n/Antigravity)" },
+        { type: "output", text: "  - InStock (Inventory tracker, Kotlin/Spring/React)" },
+        { type: "output", text: "  - ClassLink (Enrollment platform, Spring Boot/React/Java/Antigravity)" },
+        { type: "output", text: "  - TrikeGo (Commuter matching app, Django/Supabase/Antigravity)" },
         { type: "output", text: "Type the project names in your browser or click them in Projects.app to explore!" }
       );
       break;
@@ -379,7 +381,7 @@ watch(
     <main class="desktop" id="desktop">
       
       <!-- Sticky Note Widget -->
-      <aside class="sticky-note" id="sticky-note">
+      <aside class="sticky-note" id="sticky-note" @click="openWindow('about')">
         <div class="sticky-pin" aria-hidden="true"></div>
         <img class="sticky-avatar" :src="profileImg" alt="Gregory Ivan Onyx Badinas" loading="eager">
         <h2 class="sticky-name">Gregory Ivan Onyx Badinas</h2>
@@ -455,25 +457,20 @@ watch(
             <p class="about-subtitle">BSIT Student · Full-Stack Developer · Mobile Developer</p>
             <div class="about-tags">
               <span>Web Apps</span>
-              <span>IT Support</span>
-              <span>Non-coding Roles</span>
+              <span>Project Management</span>
+              <span>Full-stack Development</span>
             </div>
           </div>
         </div>
         <div class="about-body">
           <div class="about-stats">
-            <div class="stat-chip"><span class="stat-label">Focus</span><span class="stat-value">App Support</span></div>
+            <div class="stat-chip"><span class="stat-label">Education</span><span class="stat-value">4th Year BSIT</span></div>
             <div class="stat-chip"><span class="stat-label">Stack</span><span class="stat-value">Java + React</span></div>
-            <div class="stat-chip"><span class="stat-label">Status</span><span class="stat-value">Internship Ready</span></div>
+            <div class="stat-chip"><span class="stat-label">Scholar</span><span class="stat-value">DOST-SEI RA 7687</span></div>
           </div>
           <p>I build practical web, mobile, backend, and automation solutions using technologies such as Spring Boot, React, Kotlin, Django, Supabase, and n8n.</p>
-          <p>I am a third-year BSIT student with a strong foundation in application development, system support, and technical problem-solving. I have built web and mobile applications, contributed to team-based software projects, and explored workflow automation through platforms such as ServiceNow and n8n.</p>
-          <p>I am currently seeking an IT Operations, application support, software development, or non-coding technical internship where I can contribute to support, coordination, documentation, workflow improvement, and practical problem-solving while continuing to grow in a professional IT environment.</p>
-          <div class="about-highlights">
-            <span>Team-based delivery</span>
-            <span>Support mindset</span>
-            <span>Practical automation</span>
-          </div>
+          <p>I am a fourth-year BSIT student and AI-powered Coding Assistant with a strong foundation in full-stack application development, systems support, and automated pipelines. I have built web and mobile applications, coordinated team-based software deliverables, and designed workflow automations.</p>
+          <p>I am passionate about streamlining workflows and leveraging advanced AI coding tools—such as Antigravity, Gemini, Claude, and GitHub Copilot—to deliver high-quality, well-documented code and automated systems.</p>
         </div>
       </div>
     </section>
@@ -522,13 +519,19 @@ watch(
             </div>
           </article>
           <article class="skill-card">
-            <h3>Platforms</h3>
+            <h3>Platforms &amp; Automation</h3>
             <div class="badge-list">
-              <span>ServiceNow UI Builder</span><span>ServiceNow Flow Designer</span><span>Custom Scripting</span><span>n8n</span>
+              <span>ServiceNow (UI Builder, Flow)</span><span>n8n (AI Pipelines)</span><span>Custom Scripting</span>
             </div>
           </article>
           <article class="skill-card">
-            <h3>Design</h3>
+            <h3>AI Tools &amp; Assistants</h3>
+            <div class="badge-list">
+              <span>Antigravity</span><span>Gemini</span><span>Claude</span><span>GitHub Copilot</span><span>Codex</span>
+            </div>
+          </article>
+          <article class="skill-card">
+            <h3>Design &amp; Prototyping</h3>
             <div class="badge-list">
               <span>Figma</span><span>Canva</span>
             </div>
@@ -565,63 +568,63 @@ watch(
           
           <article class="project-card featured" @click="handleProjectClick('citewise', 'https://github.com/sophie546/CiteWise.git')">
             <span class="project-type">Capstone Project</span>
-            <h3>CiteWise &rarr;</h3>
+            <h3>CiteWise <svg class="win-link-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="5" y1="12" x2="19" y2="12"></line><polyline points="12 5 19 12 12 19"></polyline></svg></h3>
             <p>An intelligent academic research platform that uses AI citation workflows, citation management, literature validation, and semantic scoring.</p>
-            <div class="badge-list"><span>Spring Boot</span><span>React</span><span>Supabase</span><span>n8n</span></div>
+            <div class="badge-list"><span>Spring Boot</span><span>React</span><span>Supabase</span><span>n8n</span><span>Antigravity</span></div>
           </article>
 
           <article class="project-card" @click="handleProjectClick('instock', 'https://github.com/GIOnyx/IT342_InStock_G4_Badinas.git')">
             <span class="project-type">Full-Stack Web &amp; Mobile App</span>
-            <h3>InStock &rarr;</h3>
+            <h3>InStock <svg class="win-link-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="5" y1="12" x2="19" y2="12"></line><polyline points="12 5 19 12 12 19"></polyline></svg></h3>
             <p>Inventory, pantry control, and recipe suggest system with backend APIs, React dashboard, and Android app.</p>
             <div class="badge-list"><span>Spring Boot</span><span>React</span><span>Supabase</span><span>Android Kotlin</span></div>
           </article>
 
           <article class="project-card" @click="handleProjectClick('hygienix', 'https://hygienix.vercel.app/')">
             <span class="project-type">Full-Stack Web App</span>
-            <h3>Hygienix &rarr;</h3>
+            <h3>Hygienix <svg class="win-link-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="5" y1="12" x2="19" y2="12"></line><polyline points="12 5 19 12 12 19"></polyline></svg></h3>
             <p>A web-based gamified educational tool teaching school children good health and hygiene habits.</p>
             <div class="badge-list"><span>React</span><span>Vite</span><span>Supabase</span><span>Gamification</span></div>
           </article>
 
           <article class="project-card" @click="handleProjectClick('classlink', 'https://github.com/GIOnyx/ClassLink.git')">
             <span class="project-type">Full-Stack Web App</span>
-            <h3>ClassLink &rarr;</h3>
+            <h3>ClassLink <svg class="win-link-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="5" y1="12" x2="19" y2="12"></line><polyline points="12 5 19 12 12 19"></polyline></svg></h3>
             <p>Curriculum registration and enrollment database portal linking courses with student accounts.</p>
-            <div class="badge-list"><span>Spring Boot</span><span>React</span><span>Java</span><span>JavaScript</span></div>
+            <div class="badge-list"><span>Spring Boot</span><span>React</span><span>Java</span><span>Antigravity</span></div>
           </article>
 
           <article class="project-card" @click="handleProjectClick('rentmate', 'https://github.com/sipjems13/CSIT327-G7-RentMate.git')">
             <span class="project-type">Scrum Project Management</span>
-            <h3>RentMate &rarr;</h3>
+            <h3>RentMate <svg class="win-link-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="5" y1="12" x2="19" y2="12"></line><polyline points="12 5 19 12 12 19"></polyline></svg></h3>
             <p>Served as project manager and scrum master for a property rentals system coordinating milestones.</p>
             <div class="badge-list"><span>Django</span><span>Supabase</span><span>Python</span><span>CSS</span></div>
           </article>
 
           <article class="project-card" @click="handleProjectClick('trikego', 'https://csit327-g1-trikego.onrender.com')">
             <span class="project-type">Ride-Sharing Web App</span>
-            <h3>TrikeGo &rarr;</h3>
+            <h3>TrikeGo <svg class="win-link-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="5" y1="12" x2="19" y2="12"></line><polyline points="12 5 19 12 12 19"></polyline></svg></h3>
             <p>Real-time match commuter ride-sharing platform for tricycles with location backend.</p>
-            <div class="badge-list"><span>Django</span><span>Supabase</span><span>Python</span><span>CSS</span></div>
+            <div class="badge-list"><span>Django</span><span>Supabase</span><span>Python</span><span>Antigravity</span></div>
           </article>
 
           <article class="project-card" @click="handleProjectClick('readysetcook')">
             <span class="project-type">Android Kotlin App</span>
-            <h3>ReadySetCook &rarr;</h3>
+            <h3>ReadySetCook <svg class="win-link-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="5" y1="12" x2="19" y2="12"></line><polyline points="12 5 19 12 12 19"></polyline></svg></h3>
             <p>Local storage database recipe assistant showing cooking steps and filtering allergens.</p>
             <div class="badge-list"><span>Kotlin</span><span>Android Studio</span></div>
           </article>
 
           <article class="project-card" @click="handleProjectClick('insecta')">
             <span class="project-type">Java Console Game</span>
-            <h3>Insecta &rarr;</h3>
+            <h3>Insecta <svg class="win-link-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="5" y1="12" x2="19" y2="12"></line><polyline points="12 5 19 12 12 19"></polyline></svg></h3>
             <p>A text-based turn-based RPG applying core object-oriented structures and battle classes.</p>
             <div class="badge-list"><span>Java</span><span>IntelliJ IDEA</span></div>
           </article>
 
           <article class="project-card" @click="handleProjectClick('trackback', 'https://www.figma.com/design/f6ii06S1Pkl7f8wBw8Tg9R/HCI-Wireframe?node-id=0-1&t=P7tBFlOWam4Hk8IE-1')">
             <span class="project-type">Figma UI/UX Mockup</span>
-            <h3>TrackBack &rarr;</h3>
+            <h3>TrackBack <svg class="win-link-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="5" y1="12" x2="19" y2="12"></line><polyline points="12 5 19 12 12 19"></polyline></svg></h3>
             <p>Lost and found system mockup with user flows designed in Figma for university campus usability.</p>
             <div class="badge-list"><span>Figma</span></div>
           </article>
@@ -655,34 +658,44 @@ watch(
         <h2 class="win-heading">Academic Recognition &amp; Credentials</h2>
         <div class="cert-list">
           <article class="cert-item">
-            <div class="cert-icon">🏅</div>
+            <div class="cert-icon">
+              <svg width="22" height="22" viewBox="0 0 24 24" fill="currentColor"><path d="M12 3L1 9l11 6 9-4.91V17h2V9L12 3zM5 13.18v4c0 .47.27.9.7 1.1A12.008 12.008 0 0 0 12 20a12.008 12.008 0 0 0 6.3-1.72c.43-.2.7-.63.7-1.1v-4L12 17l-7-3.82z"/></svg>
+            </div>
             <div>
               <h3>DOST-SEI RA 7687 Scholar</h3>
               <p>Batch 2023</p>
             </div>
           </article>
           <article class="cert-item">
-            <div class="cert-icon">🏆</div>
+            <div class="cert-icon">
+              <svg width="22" height="22" viewBox="0 0 24 24" fill="currentColor"><path d="M19 5h-2V3H7v2H5c-1.1 0-2 .9-2 2v3c0 2.42 1.72 4.44 4.005 4.9A5.992 5.992 0 0 0 11 16.93V19H7v2h10v-2h-4v-2.07a5.993 5.993 0 0 0 4.005-1.03A4.957 4.957 0 0 0 21 10V7c0-1.1-.9-2-2-2zM5 10V7h2v3H5zm14 0h-2V7h2v3z"/></svg>
+            </div>
             <div>
               <h3>Parangal 2024 Academic Achiever</h3>
             </div>
           </article>
           <article class="cert-item">
-            <div class="cert-icon">☕</div>
+            <div class="cert-icon">
+              <svg width="22" height="22" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 15l-5-5 1.41-1.41L10 14.17l7.59-7.59L19 8l-9 9z"/></svg>
+            </div>
             <div>
               <h3>Java Certification</h3>
-              <p><a class="cert-link" href="https://citu.codechum.com/certificates/9969" target="_blank" rel="noopener noreferrer">View CodeChum Certificate &rarr;</a></p>
+              <p><a class="cert-link" href="https://citu.codechum.com/certificates/9969" target="_blank" rel="noopener noreferrer">View CodeChum Certificate <svg class="win-link-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="5" y1="12" x2="19" y2="12"></line><polyline points="12 5 19 12 12 19"></polyline></svg></a></p>
             </div>
           </article>
           <article class="cert-item">
-            <div class="cert-icon">🛠️</div>
+            <div class="cert-icon">
+              <svg width="22" height="22" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 15l-5-5 1.41-1.41L10 14.17l7.59-7.59L19 8l-9 9z"/></svg>
+            </div>
             <div>
               <h3>C Certification</h3>
-              <p><a class="cert-link" href="https://citu.codechum.com/certificates/703" target="_blank" rel="noopener noreferrer">View CodeChum Certificate &rarr;</a></p>
+              <p><a class="cert-link" href="https://citu.codechum.com/certificates/703" target="_blank" rel="noopener noreferrer">View CodeChum Certificate <svg class="win-link-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="5" y1="12" x2="19" y2="12"></line><polyline points="12 5 19 12 12 19"></polyline></svg></a></p>
             </div>
           </article>
           <article class="cert-item">
-            <div class="cert-icon">⚙️</div>
+            <div class="cert-icon">
+              <svg width="22" height="22" viewBox="0 0 24 24" fill="currentColor"><path d="M12 17.27L18.18 21l-1.64-7.03L22 9.24l-7.19-.61L12 2 9.19 8.63 2 9.24l5.46 4.73L5.82 21z"/></svg>
+            </div>
             <div>
               <h3>EY GDS ServiceNow Hackathon Participant</h3>
               <p>Team ZNRP</p>
@@ -715,10 +728,12 @@ watch(
       </header>
       <div class="win-body" data-lenis-prevent>
         <h2 class="win-heading">Let&apos;s build something practical.</h2>
-        <p class="win-subheading">I am open to internship opportunities, collaboration, and software development projects.</p>
+        <p class="win-subheading">I am open to collaborations, software development, and technical projects.</p>
         <div class="contact-list">
           <a class="contact-card" href="mailto:gregoryivanonyx.badinas@gmail.com">
-            <span class="contact-icon">📧</span>
+            <span class="contact-icon">
+              <svg width="22" height="22" viewBox="0 0 24 24" fill="currentColor"><path d="M20 4H4c-1.1 0-1.99.9-1.99 2L2 18c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V6c0-1.1-.9-2-2-2zm0 4l-8 5-8-5V6l8 5 8-5v2z"/></svg>
+            </span>
             <div>
               <span class="contact-label">Email</span>
               <strong>gregoryivanonyx.badinas@gmail.com</strong>
@@ -882,6 +897,7 @@ watch(
   color: var(--sticky-text);
   transition: transform var(--transition-bounce), box-shadow 200ms ease;
   pointer-events: auto;
+  cursor: pointer;
 }
 .sticky-note:hover {
   transform: rotate(0deg) scale(1.03);
@@ -1356,6 +1372,18 @@ watch(
   color: var(--text-color);
   margin-bottom: 8px;
   letter-spacing: -0.01em;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+.win-link-icon {
+  width: 14px; height: 14px;
+  display: inline-block;
+  transition: transform 200ms ease;
+  flex-shrink: 0;
+}
+.project-card:hover .win-link-icon {
+  transform: translateX(4px);
 }
 .project-card p {
   color: var(--text-muted);
@@ -1389,7 +1417,7 @@ watch(
 .cert-item {
   display: flex;
   gap: 14px;
-  align-items: flex-start;
+  align-items: center;
   padding: 16px;
   background: var(--sand-card);
   border: 1px solid var(--sand-border);
@@ -1399,15 +1427,39 @@ watch(
 .cert-item:hover {
   border-color: var(--text-muted);
 }
-.cert-icon { font-size: 1.4rem; flex-shrink: 0; line-height: 1; padding-top: 2px; }
+.cert-icon {
+  flex-shrink: 0;
+  display: grid;
+  place-items: center;
+  width: 24px;
+  height: 24px;
+  color: var(--text-soft);
+  margin-right: 12px;
+  transition: color 200ms ease;
+}
+.cert-icon svg {
+  display: block;
+}
+.cert-item:hover .cert-icon {
+  color: var(--text-color);
+}
 .cert-item h3 { font-size: 0.9rem; font-weight: 700; color: var(--text-color); margin-bottom: 4px; }
 .cert-item p { color: var(--text-muted); font-size: 0.82rem; }
 .cert-link {
   color: var(--cyan);
   font-weight: 700;
   transition: color 150ms ease;
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+}
+.cert-link .win-link-icon {
+  width: 12px; height: 12px;
 }
 .cert-link:hover { color: var(--orange); text-decoration: underline; }
+.cert-link:hover .win-link-icon {
+  transform: translateX(3px);
+}
 
 /* ═══════════ CONTACT WINDOW CONTENT ═══════════ */
 .contact-list { display: flex; flex-direction: column; gap: 12px; }
