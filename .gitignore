@@ -24,3 +24,14 @@ dist-ssr
 *.njsproj
 *.sln
 *.sw?
+
+# Agent-related files and documentation
+.agents/
+.agent/
+_agents/
+_agent/
+best_practices_audit.md
+project_onboarding.md
+walkthrough.md
+task.md
+qa_walkthrough.md
