@@ -85,8 +85,8 @@ const init = () => {
   if (!isTouchDevice) {
     gsap.ticker.add(tick);
   }
-  window.addEventListener("mousemove", handleMouseMove);
-  window.addEventListener("click", handleClick);
+  window.addEventListener("mousemove", handleMouseMove, { passive: true });
+  window.addEventListener("click", handleClick, { passive: true });
 };
 
 const destroy = () => {

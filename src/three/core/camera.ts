@@ -25,32 +25,36 @@ scene.instance.add(parallaxGroup);
 parallaxGroup.add(instance);
 
 const cursor = { x: 0, y: 0 };
+let reducedMotionQuery: MediaQueryList | null = null;
 
 const init = () => {
   threeSizes.on("resize", resize);
   resize();
 
+  reducedMotionQuery = window.matchMedia("(prefers-reduced-motion: reduce)");
+
   if (!isTouch()) {
-    window.addEventListener("mousemove", handleMouseMove);
+    window.addEventListener("pointermove", handlePointerMove, { passive: true });
   }
 
   gsap.ticker.add(tick);
   tick();
 };
 
-const handleMouseMove = (event: MouseEvent) => {
+const handlePointerMove = (event: PointerEvent) => {
+  if (event.pointerType === "touch") return;
   cursor.x = event.clientX / threeSizes.width - 0.5;
   cursor.y = event.clientY / threeSizes.height - 0.5;
 };
 
 const updateParallax = (object: Object3D) => {
-  const delta = gsap.ticker.deltaRatio();
+  if (reducedMotionQuery?.matches) return;
+  const dt = Math.min(gsap.ticker.deltaRatio(60) / 60, 0.05);
+  const alpha = 1 - Math.exp(-PARALLAX_SPEED * 6 * dt);
   const parallaxX = cursor.x * PARALLAX_INTENSITY;
   const parallaxY = -cursor.y * PARALLAX_INTENSITY;
-  const byX = (parallaxX - object.position.x) * PARALLAX_SPEED * 0.1 * delta;
-  const byY = (parallaxY - object.position.y) * PARALLAX_SPEED * 0.1 * delta;
-  if (byX < 0.05 && byX > -0.05) object.position.x += byX;
-  if (byY < 0.05 && byY > -0.05) object.position.y += byY;
+  object.position.x += (parallaxX - object.position.x) * alpha;
+  object.position.y += (parallaxY - object.position.y) * alpha;
 };
 
 const calculateContactTransform = () => {
@@ -110,7 +114,8 @@ const project = (point: Vector3): { x: number; y: number } => {
 const destroy = () => {
   threeSizes.off("resize", resize);
   gsap.ticker.remove(tick);
-  window.removeEventListener("mousemove", handleMouseMove);
+  window.removeEventListener("pointermove", handlePointerMove);
+  reducedMotionQuery = null;
   cursor.x = 0;
   cursor.y = 0;
 };

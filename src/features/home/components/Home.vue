@@ -32,79 +32,84 @@ const updateClock = () => {
   clockText.value = now.toLocaleString("en-US", opts);
 };
 
-let clockInterval: any = null;
+let clockInterval: ReturnType<typeof setInterval> | null = null;
 
 // ── Window OS State ──
+type WindowKey = "about" | "experience" | "skills" | "projects" | "certifications" | "contact";
+
 const booting = ref(true);
 
-const openWindows = ref({
+const openWindows = ref<Record<WindowKey, boolean>>({
   about: false,
+  experience: false,
   skills: false,
   projects: false,
   certifications: false,
-  contact: false
+  contact: false,
 });
 
-const minimizedWindows = ref({
+const minimizedWindows = ref<Record<WindowKey, boolean>>({
   about: false,
+  experience: false,
   skills: false,
   projects: false,
   certifications: false,
-  contact: false
+  contact: false,
 });
 
-const maximizedWindows = ref({
+const maximizedWindows = ref<Record<WindowKey, boolean>>({
   about: false,
+  experience: false,
   skills: false,
   projects: false,
   certifications: false,
-  contact: false
+  contact: false,
 });
 
-const zIndices = ref({
+const zIndices = ref<Record<WindowKey, number>>({
   about: 100,
+  experience: 100,
   skills: 100,
   projects: 100,
   certifications: 100,
-  contact: 100
+  contact: 100,
 });
 
 let topZ = 100;
 
-const bringToFront = (app: string) => {
+const bringToFront = (app: WindowKey) => {
   topZ += 1;
-  zIndices.value[app as keyof typeof zIndices.value] = topZ;
+  zIndices.value[app] = topZ;
 };
 
-const openWindow = (app: string) => {
-  openWindows.value[app as keyof typeof openWindows.value] = true;
-  minimizedWindows.value[app as keyof typeof minimizedWindows.value] = false;
+const openWindow = (app: WindowKey) => {
+  openWindows.value[app] = true;
+  minimizedWindows.value[app] = false;
   bringToFront(app);
 };
 
-const closeWindow = (app: string) => {
-  openWindows.value[app as keyof typeof openWindows.value] = false;
-  maximizedWindows.value[app as keyof typeof maximizedWindows.value] = false;
-  minimizedWindows.value[app as keyof typeof minimizedWindows.value] = false;
+const closeWindow = (app: WindowKey) => {
+  openWindows.value[app] = false;
+  maximizedWindows.value[app] = false;
+  minimizedWindows.value[app] = false;
 };
 
-const minimizeWindow = (app: string) => {
-  minimizedWindows.value[app as keyof typeof minimizedWindows.value] = true;
+const minimizeWindow = (app: WindowKey) => {
+  minimizedWindows.value[app] = true;
 };
 
-const toggleMaximize = (app: string) => {
-  maximizedWindows.value[app as keyof typeof maximizedWindows.value] =
-    !maximizedWindows.value[app as keyof typeof maximizedWindows.value];
+const toggleMaximize = (app: WindowKey) => {
+  maximizedWindows.value[app] = !maximizedWindows.value[app];
   bringToFront(app);
 };
 
-const isWindowOpen = (app: string) => {
-  return openWindows.value[app as keyof typeof openWindows.value] && !minimizedWindows.value[app as keyof typeof minimizedWindows.value];
+const isWindowOpen = (app: WindowKey) => {
+  return openWindows.value[app] && !minimizedWindows.value[app];
 };
 
-const handleDockClick = (app: string) => {
+const handleDockClick = (app: WindowKey) => {
   if (isWindowOpen(app)) {
-    if (zIndices.value[app as keyof typeof zIndices.value] === topZ) {
+    if (zIndices.value[app] === topZ) {
       minimizeWindow(app);
     } else {
       bringToFront(app);
@@ -123,12 +128,33 @@ const handleProjectClick = (slug: string, url?: string) => {
 };
 
 // ── Dragging logic ──
-let dragState: any = null;
+interface DragState {
+  app: WindowKey;
+  win: HTMLElement;
+  offsetX: number;
+  offsetY: number;
+}
 
-const onDragStart = (e: MouseEvent | TouchEvent, app: string) => {
+let dragState: DragState | null = null;
+
+const attachDragListeners = () => {
+  window.addEventListener("mousemove", onDragMove);
+  window.addEventListener("mouseup", onDragEnd);
+  window.addEventListener("touchmove", onDragMove, { passive: false });
+  window.addEventListener("touchend", onDragEnd);
+};
+
+const detachDragListeners = () => {
+  window.removeEventListener("mousemove", onDragMove);
+  window.removeEventListener("mouseup", onDragEnd);
+  window.removeEventListener("touchmove", onDragMove);
+  window.removeEventListener("touchend", onDragEnd);
+};
+
+const onDragStart = (e: MouseEvent | TouchEvent, app: WindowKey) => {
   // Don't drag if clicking controls
   const target = e.target as HTMLElement;
-  if (target.closest(".win-controls") || maximizedWindows.value[app as keyof typeof maximizedWindows.value]) return;
+  if (target.closest(".win-controls") || maximizedWindows.value[app]) return;
 
   e.preventDefault();
   bringToFront(app);
@@ -151,6 +177,7 @@ const onDragStart = (e: MouseEvent | TouchEvent, app: string) => {
   win.style.transform = "none";
   win.style.left = rect.left + "px";
   win.style.top = rect.top + "px";
+  attachDragListeners();
 };
 
 const onDragMove = (e: MouseEvent | TouchEvent) => {
@@ -172,6 +199,7 @@ const onDragEnd = () => {
     dragState.win.classList.remove("dragging");
   }
   dragState = null;
+  detachDragListeners();
 };
 
 // ── Raycast Hover Cursor update ──
@@ -223,36 +251,49 @@ const executeCommand = (cmd: string) => {
     case "help":
       terminalLines.value.push(
         { type: "output", text: "Available commands:" },
-        { type: "output", text: "  about     - Gregory's background bio" },
-        { type: "output", text: "  skills    - Output technical toolkit" },
-        { type: "output", text: "  projects  - Show projects with links" },
-        { type: "output", text: "  contact   - Display email/social details" },
-        { type: "output", text: "  clear     - Clear terminal logs" }
+        { type: "output", text: "  about       - Gregory's background bio" },
+        { type: "output", text: "  experience  - Internship & leadership highlights" },
+        { type: "output", text: "  skills      - Output technical toolkit" },
+        { type: "output", text: "  projects    - Show projects with links" },
+        { type: "output", text: "  contact     - Display email/social details" },
+        { type: "output", text: "  clear       - Clear terminal logs" }
       );
       break;
     case "about":
       terminalLines.value.push(
-        { type: "output", text: "Gregory Ivan Onyx Badinas" },
-        { type: "output", text: "BSIT Student & AI-powered Coding Assistant" },
-        { type: "output", text: "Fourth-year student with a strong foundation in full-stack application development, systems support, and automated pipelines." }
+        { type: "output", text: "Gregory Ivan Onyx M. Badinas" },
+        { type: "output", text: "Full-Stack Software Engineer & AI/Workflow Automation | BSIT Student" },
+        { type: "output", text: "Building production web applications, real-time systems, and AI-enabled workflow automations across React, Node.js, Python, MongoDB, n8n, and ServiceNow." }
+      );
+      break;
+    case "experience":
+      terminalLines.value.push(
+        { type: "output", text: "The Umonics Method — Full-Stack Developer Intern (Lead Developer)" },
+        { type: "output", text: "Dates: Jul 2026 – Sep 2026 | Project: Umonics Integrated System" },
+        { type: "output", text: "Stack: React, Node.js, Express, MongoDB, Socket.IO, PWA, Tailwind CSS, Recharts, Vercel, Render" },
+        { type: "output", text: "  • Offboarding pipelines (3-stage ICF, COC PDF generator, LOC, Evaluations) w/ 80% hours gate" },
+        { type: "output", text: "  • Real-time Socket.IO sync, Web Push & toast notifications, PWA updates, Recharts dashboards" },
+        { type: "output", text: "  • Query-level MongoDB scoping (teamId/groupId), IT Audit Trail, leave-attendance automation" },
+        { type: "output", text: "  • Led 5 production releases (v3.5.0–v3.10.0), 50+ features/fixes, mentored 3 interns" }
       );
       break;
     case "skills":
       terminalLines.value.push(
-        { type: "output", text: "Languages: Java, C, Kotlin, Python, JS/TS, PHP, SQL" },
-        { type: "output", text: "Frameworks: Spring Boot, React, Django, Android SDK" },
-        { type: "output", text: "Platforms: ServiceNow, n8n (AI pipelines), Supabase" },
-        { type: "output", text: "AI Tools: Antigravity, Gemini, Claude, GitHub Copilot" }
+        { type: "output", text: "Programming: Python, JavaScript, Java, SQL, Kotlin, C, PHP" },
+        { type: "output", text: "Development: React, Node.js, Express, Spring Boot, Django, REST APIs, Socket.IO, PWA, Tailwind CSS, Recharts" },
+        { type: "output", text: "Data & DevOps: MongoDB, PostgreSQL, Supabase, Git, GitHub, Vercel, Render" },
+        { type: "output", text: "Automation: n8n, ServiceNow (Flow Designer, UI Builder), custom scripting" },
+        { type: "output", text: "AI Tools: Antigravity, Gemini, Claude, GitHub Copilot, Codex" }
       );
       break;
     case "projects":
       terminalLines.value.push(
         { type: "output", text: "Featured Projects:" },
-        { type: "output", text: "  - CiteWise (Academic workflows, Spring Boot/React/n8n/Antigravity)" },
-        { type: "output", text: "  - InStock (Inventory tracker, Kotlin/Spring/React)" },
-        { type: "output", text: "  - ClassLink (Enrollment platform, Spring Boot/React/Java/Antigravity)" },
-        { type: "output", text: "  - TrikeGo (Commuter matching app, Django/Supabase/Antigravity)" },
-        { type: "output", text: "Type the project names in your browser or click them in Projects.app to explore!" }
+        { type: "output", text: "  - Umonics Integrated System (HR & Intern Platform — React/Node.js/Express/MongoDB/Socket.IO/PWA)" },
+        { type: "output", text: "  - CiteWise (AI Research Platform — Spring Boot/React/Supabase/n8n)" },
+        { type: "output", text: "  - Agapay (Disaster Response & Dispatch — ServiceNow Flow Designer/UI Builder)" },
+        { type: "output", text: "  - TrikeGo (Ride-Sharing Platform — Python/Django REST/Supabase)" },
+        { type: "output", text: "Open Experience or Projects in the dock to explore live demos & repos!" }
       );
       break;
     case "contact":
@@ -280,6 +321,23 @@ const handleTerminalSubmit = () => {
   executeCommand(cmd);
 };
 
+const handleKeyDown = (e: KeyboardEvent) => {
+  if (e.key === "Escape") {
+    let topApp: WindowKey | "" = "";
+    let maxVal = -1;
+    (Object.keys(openWindows.value) as WindowKey[]).forEach((app) => {
+      if (isWindowOpen(app)) {
+        const z = zIndices.value[app];
+        if (z > maxVal) {
+          maxVal = z;
+          topApp = app;
+        }
+      }
+    });
+    if (topApp) closeWindow(topApp);
+  }
+};
+
 onMounted(() => {
   // Initialize Three.js WebGL
   if (threeCanvasRef.value && !threeInitialized.value) {
@@ -291,29 +349,8 @@ onMounted(() => {
   updateClock();
   clockInterval = setInterval(updateClock, 10000);
 
-  // Setup global drag listeners
-  window.addEventListener("mousemove", onDragMove);
-  window.addEventListener("mouseup", onDragEnd);
-  window.addEventListener("touchmove", onDragMove, { passive: false });
-  window.addEventListener("touchend", onDragEnd);
-
   // Keyboard close uppermost window
-  window.addEventListener("keydown", (e) => {
-    if (e.key === "Escape") {
-      let topApp = "";
-      let maxVal = -1;
-      Object.keys(openWindows.value).forEach((app) => {
-        if (isWindowOpen(app)) {
-          const z = zIndices.value[app as keyof typeof zIndices.value];
-          if (z > maxVal) {
-            maxVal = z;
-            topApp = app;
-          }
-        }
-      });
-      if (topApp) closeWindow(topApp);
-    }
-  });
+  window.addEventListener("keydown", handleKeyDown);
 
   // End boot delay
   setTimeout(() => {
@@ -329,10 +366,8 @@ onUnmounted(() => {
   gsap.ticker.remove(updateCursor);
   animations.destroy();
 
-  window.removeEventListener("mousemove", onDragMove);
-  window.removeEventListener("mouseup", onDragEnd);
-  window.removeEventListener("touchmove", onDragMove);
-  window.removeEventListener("touchend", onDragEnd);
+  detachDragListeners();
+  window.removeEventListener("keydown", handleKeyDown);
 });
 
 watch(
@@ -385,7 +420,12 @@ watch(
         <div class="sticky-pin" aria-hidden="true"></div>
         <img class="sticky-avatar" :src="profileImg" alt="Gregory Ivan Onyx Badinas" loading="eager">
         <h2 class="sticky-name">Gregory Ivan Onyx Badinas</h2>
-        <p class="sticky-role">BSIT Student · Full-Stack Dev · Mobile Dev</p>
+        <p class="sticky-role">Full-Stack Software Engineer · AI &amp; Workflow Automation</p>
+        <button class="sticky-exp-pill" type="button" @click.stop="openWindow('experience')">
+          <span class="pulse-dot" aria-hidden="true"></span>
+          <span>Lead Dev Intern @ The Umonics Method</span>
+          <svg class="win-link-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="5" y1="12" x2="19" y2="12"></line><polyline points="12 5 19 12 12 19"></polyline></svg>
+        </button>
       </aside>
 
       <!-- Terminal Widget -->
@@ -453,25 +493,103 @@ watch(
         <div class="about-hero">
           <img class="about-photo" :src="profileImg" alt="Gregory Ivan Onyx Badinas">
           <div class="about-intro">
-            <h1>Gregory Ivan Onyx Badinas</h1>
-            <p class="about-subtitle">BSIT Student · Full-Stack Developer · Mobile Developer</p>
+            <h1>Gregory Ivan Onyx M. Badinas</h1>
+            <p class="about-subtitle">Full-Stack Software Engineer &amp; AI/Workflow Automation · BSIT Student</p>
             <div class="about-tags">
-              <span>Web Apps</span>
-              <span>Project Management</span>
-              <span>Full-stack Development</span>
+              <span>Full-Stack Web Apps</span>
+              <span>AI &amp; Workflow Automation</span>
+              <span>Real-Time Systems</span>
             </div>
           </div>
         </div>
         <div class="about-body">
           <div class="about-stats">
-            <div class="stat-chip"><span class="stat-label">Education</span><span class="stat-value">4th Year BSIT</span></div>
-            <div class="stat-chip"><span class="stat-label">Stack</span><span class="stat-value">Java + React</span></div>
+            <div class="stat-chip"><span class="stat-label">Education</span><span class="stat-value">BSIT · CIT-University</span></div>
+            <div class="stat-chip"><span class="stat-label">Latest Role</span><span class="stat-value">Lead Dev Intern</span></div>
             <div class="stat-chip"><span class="stat-label">Scholar</span><span class="stat-value">DOST-SEI RA 7687</span></div>
           </div>
-          <p>I build practical web, mobile, backend, and automation solutions using technologies such as Spring Boot, React, Kotlin, Django, Supabase, and n8n.</p>
-          <p>I am a fourth-year BSIT student and AI-powered Coding Assistant with a strong foundation in full-stack application development, systems support, and automated pipelines. I have built web and mobile applications, coordinated team-based software deliverables, and designed workflow automations.</p>
-          <p>I am passionate about streamlining workflows and leveraging advanced AI coding tools—such as Antigravity, Gemini, Claude, and GitHub Copilot—to deliver high-quality, well-documented code and automated systems.</p>
+          <p>Information Technology student and Full-Stack Developer building production web applications, real-time systems, and AI-enabled workflow automations. Experienced across React, Node.js, Python, MongoDB, n8n, and ServiceNow, with proven leadership shipping multi-release enterprise platforms and mentoring developer teams.</p>
+          <p>Most recently served as <strong>Full-Stack Developer Intern (Lead Developer)</strong> at <strong>The Umonics Method</strong>, leading 5 production releases (v3.5.0–v3.10.0) of the Umonics Integrated System across Vercel and Render while mentoring 3 incoming developer interns.</p>
+          <p>Passionate about streamlining operational workflows and leveraging modern AI engineering tools—such as Antigravity, Gemini, Claude, and GitHub Copilot—to ship reliable, maintainable, and well-automated software.</p>
+          <div class="about-cta">
+            <button type="button" class="exp-action-btn primary" @click="openWindow('experience')">
+              <span>View Internship Experience</span>
+              <svg class="win-link-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="5" y1="12" x2="19" y2="12"></line><polyline points="12 5 19 12 12 19"></polyline></svg>
+            </button>
+          </div>
         </div>
+      </div>
+    </section>
+
+    <!-- ── Experience Window ── -->
+    <section
+      class="app-window win-large"
+      id="win-experience"
+      :class="{ open: openWindows.experience, minimizing: minimizedWindows.experience, maximized: maximizedWindows.experience }"
+      :style="{ zIndex: zIndices.experience }"
+      aria-label="Experience window"
+      role="dialog"
+      :aria-hidden="!openWindows.experience"
+      @mousedown="bringToFront('experience')"
+      @touchstart="bringToFront('experience')"
+    >
+      <header class="win-titlebar" data-drag-handle @mousedown="onDragStart($event, 'experience')" @touchstart="onDragStart($event, 'experience')">
+        <div class="win-controls">
+          <button class="win-dot close" @click="closeWindow('experience')" aria-label="Close window"></button>
+          <button class="win-dot minimize" @click="minimizeWindow('experience')" aria-label="Minimize window"></button>
+          <button class="win-dot maximize" @click="toggleMaximize('experience')" aria-label="Maximize window"></button>
+        </div>
+        <span class="win-title">Experience</span>
+        <span class="win-controls-spacer"></span>
+      </header>
+      <div class="win-body" data-lenis-prevent>
+        <h2 class="win-heading">Work Experience</h2>
+        <p class="win-subheading">Production engineering, real-time systems, workflow automation, and technical leadership.</p>
+
+        <article class="exp-card">
+          <div class="exp-header">
+            <div class="exp-title-group">
+              <div class="exp-badges-row">
+                <span class="project-type">Internship · Lead Developer</span>
+                <span class="exp-dates">Jul 2026 – Sep 2026</span>
+              </div>
+              <h3 class="exp-company">The Umonics Method</h3>
+              <p class="exp-role">Full-Stack Developer Intern (Lead Developer)</p>
+              <p class="exp-project-name">Project: <strong>Umonics Integrated System</strong> <span>(HR &amp; Intern Management Platform)</span></p>
+            </div>
+          </div>
+
+          <ul class="exp-highlights">
+            <li>
+              <strong>Workflow &amp; Document Automation:</strong> Architected end-to-end offboarding pipelines—including a 3-stage Intern Clearance Form (ICF), automated Certificate of Completion (COC) PDF generator, Letter of Completion (LOC) fulfillment, and Evaluation sign-offs—enforced by an 80% hours completion gate.
+            </li>
+            <li>
+              <strong>Real-Time Systems &amp; PWA:</strong> Engineered live Socket.IO synchronization, background Web Push and in-app toast notifications with configurable channel preferences, PWA service worker updates, and interactive Recharts analytics dashboards.
+            </li>
+            <li>
+              <strong>Security &amp; Data Integrity:</strong> Enforced query-level MongoDB data scoping (<code>teamId</code>/<code>groupId</code>) to prevent cross-role data leakage, built an IT-scoped System Audit Trail, automated approved-leave attendance logging, and resolved server-side timezone sync bugs.
+            </li>
+            <li>
+              <strong>Release Ownership &amp; Mentorship:</strong> Led 5 production releases (v3.5.0–v3.10.0) on Vercel and Render, delivering 50+ tracked features/fixes while onboarding, mentoring, and reviewing pull requests for 3 incoming developer interns.
+            </li>
+          </ul>
+
+          <div class="exp-stack">
+            <span class="exp-stack-label">Tech Stack</span>
+            <div class="badge-list">
+              <span>React</span>
+              <span>Node.js</span>
+              <span>Express</span>
+              <span>MongoDB</span>
+              <span>Socket.IO</span>
+              <span>PWA</span>
+              <span>Tailwind CSS</span>
+              <span>Recharts</span>
+              <span>Vercel</span>
+              <span>Render</span>
+            </div>
+          </div>
+        </article>
       </div>
     </section>
 
@@ -498,30 +616,30 @@ watch(
       </header>
       <div class="win-body" data-lenis-prevent>
         <h2 class="win-heading">Technical Toolkit</h2>
-        <p class="win-subheading">Languages, frameworks, platforms, and tools I use across web, mobile, backend, automation, and design work.</p>
+        <p class="win-subheading">Languages, frameworks, databases, automation platforms, and tools I use across full-stack, real-time, and AI workflow projects.</p>
         <div class="skills-grid">
           <article class="skill-card">
-            <h3>Languages</h3>
+            <h3>Programming</h3>
             <div class="badge-list">
-              <span>Java</span><span>C</span><span>Kotlin</span><span>Python</span><span>HTML</span><span>CSS</span><span>JavaScript</span><span>PHP</span><span>SQL</span>
+              <span>Python</span><span>JavaScript</span><span>Java</span><span>SQL</span><span>Kotlin</span><span>C</span><span>HTML</span><span>CSS</span><span>PHP</span>
             </div>
           </article>
           <article class="skill-card">
-            <h3>Frameworks &amp; Libraries</h3>
+            <h3>Development &amp; Frameworks</h3>
             <div class="badge-list">
-              <span>Spring Boot</span><span>React</span><span>Django</span><span>JavaFX</span><span>Vite</span><span>Android Studio</span>
+              <span>React</span><span>Node.js</span><span>Express</span><span>Spring Boot</span><span>Django</span><span>REST APIs</span><span>Socket.IO</span><span>PWA</span><span>Tailwind CSS</span><span>Recharts</span><span>Vite</span><span>Android Studio</span>
             </div>
           </article>
           <article class="skill-card">
-            <h3>Databases &amp; DevOps</h3>
+            <h3>Databases &amp; Deployment</h3>
             <div class="badge-list">
-              <span>Supabase</span><span>SQL</span><span>Git</span><span>GitHub</span><span>Render</span>
+              <span>MongoDB</span><span>PostgreSQL</span><span>Supabase</span><span>Git</span><span>GitHub</span><span>Vercel</span><span>Render</span>
             </div>
           </article>
           <article class="skill-card">
-            <h3>Platforms &amp; Automation</h3>
+            <h3>Automation &amp; Platforms</h3>
             <div class="badge-list">
-              <span>ServiceNow (UI Builder, Flow)</span><span>n8n (AI Pipelines)</span><span>Custom Scripting</span>
+              <span>n8n</span><span>ServiceNow (Flow Designer, UI Builder)</span><span>Custom Scripting</span>
             </div>
           </article>
           <article class="skill-card">
@@ -565,12 +683,26 @@ watch(
         <h2 class="win-heading">Selected Work</h2>
         <p class="win-subheading">Academic, full-stack, mobile, and automation projects. Click a card to open its link or details.</p>
         <div class="projects-grid">
-          
-          <article class="project-card featured" @click="handleProjectClick('citewise', 'https://github.com/sophie546/CiteWise.git')">
+
+          <article class="project-card featured" @click="openWindow('experience')">
+            <span class="project-type">Internship · Lead Developer · The Umonics Method</span>
+            <h3>Umonics Integrated System <svg class="win-link-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="5" y1="12" x2="19" y2="12"></line><polyline points="12 5 19 12 12 19"></polyline></svg></h3>
+            <p>HR &amp; Intern Management Platform featuring automated offboarding pipelines (3-stage ICF, COC PDF generation, LOC, Evaluations), real-time Socket.IO sync, PWA Web Push notifications, Recharts analytics, and query-level MongoDB scoping across 5 production releases.</p>
+            <div class="badge-list"><span>React</span><span>Node.js</span><span>Express</span><span>MongoDB</span><span>Socket.IO</span><span>PWA</span><span>Tailwind CSS</span><span>Recharts</span><span>Vercel</span><span>Render</span></div>
+          </article>
+
+          <article class="project-card" @click="handleProjectClick('citewise', 'https://github.com/sophie546/CiteWise.git')">
             <span class="project-type">Capstone Project</span>
             <h3>CiteWise <svg class="win-link-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="5" y1="12" x2="19" y2="12"></line><polyline points="12 5 19 12 12 19"></polyline></svg></h3>
             <p>An intelligent academic research platform that uses AI citation workflows, citation management, literature validation, and semantic scoring.</p>
             <div class="badge-list"><span>Spring Boot</span><span>React</span><span>Supabase</span><span>n8n</span><span>Antigravity</span></div>
+          </article>
+
+          <article class="project-card" @click="handleProjectClick('agapay', 'https://github.com/GIOnyx')">
+            <span class="project-type">EY GDS Hackathon · Team ZNRP</span>
+            <h3>Agapay <svg class="win-link-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="5" y1="12" x2="19" y2="12"></line><polyline points="12 5 19 12 12 19"></polyline></svg></h3>
+            <p>Disaster-response and mission-dispatching system supporting incident reporting, situational assessment, resource dispatching, and automated Flow Designer workflows.</p>
+            <div class="badge-list"><span>ServiceNow</span><span>Flow Designer</span><span>UI Builder</span></div>
           </article>
 
           <article class="project-card" @click="handleProjectClick('instock', 'https://github.com/GIOnyx/IT342_InStock_G4_Badinas.git')">
@@ -767,11 +899,14 @@ watch(
         <button class="dock-item" :class="{ active: openWindows.about }" @click="handleDockClick('about')" data-tooltip="About Me" aria-label="About Me">
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="8" r="4"/><path d="M20 21a8 8 0 0 0-16 0"/></svg>
         </button>
-        <button class="dock-item" :class="{ active: openWindows.skills }" @click="handleDockClick('skills')" data-tooltip="Skills" aria-label="Skills">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><polyline points="16 18 22 12 16 6"/><polyline points="8 6 2 12 8 18"/></svg>
+        <button class="dock-item" :class="{ active: openWindows.experience }" @click="handleDockClick('experience')" data-tooltip="Experience" aria-label="Experience">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="7" width="20" height="14" rx="2" ry="2"/><path d="M16 21V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16"/></svg>
         </button>
         <button class="dock-item" :class="{ active: openWindows.projects }" @click="handleDockClick('projects')" data-tooltip="Projects" aria-label="Projects">
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"/></svg>
+        </button>
+        <button class="dock-item" :class="{ active: openWindows.skills }" @click="handleDockClick('skills')" data-tooltip="Skills" aria-label="Skills">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><polyline points="16 18 22 12 16 6"/><polyline points="8 6 2 12 8 18"/></svg>
         </button>
         <button class="dock-item" :class="{ active: openWindows.certifications }" @click="handleDockClick('certifications')" data-tooltip="Certifications" aria-label="Certifications">
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="8" r="6"/><path d="M15.477 12.89 17 22l-5-3-5 3 1.523-9.11"/></svg>
@@ -780,7 +915,7 @@ watch(
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="4" width="20" height="16" rx="2"/><path d="m22 7-8.97 5.7a1.94 1.94 0 0 1-2.06 0L2 7"/></svg>
         </button>
         <div class="dock-divider" aria-hidden="true"></div>
-        <a class="dock-item" href="https://drive.google.com/uc?export=download&id=1H1breto8Fhe30B8vZrswvHGin4mFQVPY" target="_blank" rel="noopener noreferrer" data-tooltip="Resume" aria-label="Download Resume">
+        <a class="dock-item" href="/Gregory_Ivan_Onyx_Badinas_Resume.pdf" download="Gregory_Ivan_Onyx_Badinas_Resume.pdf" data-tooltip="Resume" aria-label="Download Resume">
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="12" y1="18" x2="12" y2="12"/><polyline points="9 15 12 18 15 15"/></svg>
         </a>
       </div>
@@ -842,9 +977,9 @@ watch(
   align-items: center;
   justify-content: space-between;
   padding: 0 14px;
-  background: rgba(245, 239, 230, 0.85);
-  backdrop-filter: blur(24px) saturate(1.4);
-  -webkit-backdrop-filter: blur(24px) saturate(1.4);
+  background: rgba(245, 239, 230, 0.88);
+  backdrop-filter: blur(16px) saturate(1.25);
+  -webkit-backdrop-filter: blur(16px) saturate(1.25);
   border-bottom: 1px solid var(--sand-border);
   font-size: 13px;
   font-weight: 600;
@@ -933,16 +1068,43 @@ watch(
   color: var(--sticky-text-soft);
   text-align: center;
   line-height: 1.4;
-  margin-bottom: 0px;
+  margin-bottom: 10px;
+}
+.sticky-exp-pill {
+  width: 100%;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  padding: 6px 10px;
+  background: rgba(255, 132, 0, 0.08);
+  border: 1px solid rgba(255, 132, 0, 0.22);
+  border-radius: 6px;
+  color: var(--text-color);
+  font-size: 11px;
+  font-weight: 700;
+  line-height: 1.2;
+  cursor: pointer;
+  transition: background 150ms ease, border-color 150ms ease, transform 150ms ease;
+}
+.sticky-exp-pill:hover {
+  background: rgba(255, 132, 0, 0.14);
+  border-color: rgba(255, 132, 0, 0.4);
+  transform: translateY(-1px);
+}
+.sticky-exp-pill .win-link-icon {
+  width: 12px;
+  height: 12px;
+  color: var(--orange);
 }
 
 /* ═══════════ DESKTOP TERMINAL WIDGET ═══════════ */
 .desktop-terminal {
   position: absolute;
-  top: calc(var(--menubar-h) + 50px + 235px + 20px);
+  top: calc(var(--menubar-h) + 50px + 280px + 16px);
   left: 120px;
   width: 640px;
-  height: 460px;
+  height: 420px;
   background: rgba(45, 42, 36, 0.94);
   backdrop-filter: blur(20px);
   -webkit-backdrop-filter: blur(20px);
@@ -1063,9 +1225,9 @@ watch(
   max-height: calc(100vh - var(--menubar-h) - var(--dock-h) - 32px);
   display: flex;
   flex-direction: column;
-  background: rgba(245, 239, 230, 0.95);
-  backdrop-filter: blur(40px) saturate(1.4);
-  -webkit-backdrop-filter: blur(40px) saturate(1.4);
+  background: rgba(245, 239, 230, 0.96);
+  backdrop-filter: blur(16px) saturate(1.25);
+  -webkit-backdrop-filter: blur(16px) saturate(1.25);
   border: 1px solid var(--sand-border);
   border-radius: var(--radius-lg);
   box-shadow: var(--shadow-window);
@@ -1287,6 +1449,167 @@ watch(
   border: 1px solid rgba(122, 154, 109, 0.15);
   border-radius: 6px;
 }
+.about-cta {
+  margin-top: 18px;
+}
+
+/* ═══════════ EXPERIENCE WINDOW CONTENT ═══════════ */
+.exp-card {
+  padding: 22px;
+  background: linear-gradient(135deg, rgba(255, 132, 0, 0.04) 0%, var(--sand-card) 100%);
+  border: 1px solid rgba(255, 132, 0, 0.22);
+  border-radius: var(--radius);
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+}
+.exp-header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 16px;
+  padding-bottom: 16px;
+  border-bottom: 1px solid var(--sand-border);
+}
+.exp-title-group {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+.exp-badges-row {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-bottom: 4px;
+}
+.exp-badges-row .project-type {
+  margin-bottom: 0;
+}
+.exp-dates {
+  font-size: 0.74rem;
+  font-weight: 700;
+  color: var(--text-soft);
+  padding: 3px 8px;
+  background: var(--sand-bg);
+  border: 1px solid var(--sand-border);
+  border-radius: 5px;
+}
+.exp-company {
+  font-size: 1.2rem;
+  font-weight: 800;
+  color: var(--text-color);
+  letter-spacing: -0.02em;
+}
+.exp-role {
+  font-size: 0.9rem;
+  font-weight: 700;
+  color: var(--orange);
+}
+.exp-project-name {
+  font-size: 0.82rem;
+  color: var(--text-soft);
+  margin-top: 2px;
+}
+.exp-project-name strong {
+  color: var(--text-color);
+  font-weight: 700;
+}
+.exp-project-name span {
+  color: var(--text-muted);
+}
+.exp-links {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  flex-shrink: 0;
+}
+.exp-action-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 7px 12px;
+  font-size: 0.78rem;
+  font-weight: 700;
+  border-radius: 7px;
+  cursor: pointer;
+  transition: background 150ms ease, border-color 150ms ease, transform 150ms ease;
+}
+.exp-action-btn.primary {
+  color: var(--orange);
+  background: rgba(255, 132, 0, 0.08);
+  border: 1px solid rgba(255, 132, 0, 0.25);
+}
+.exp-action-btn.primary:hover {
+  background: rgba(255, 132, 0, 0.15);
+  border-color: rgba(255, 132, 0, 0.45);
+  transform: translateY(-1px);
+}
+.exp-action-btn.secondary {
+  color: var(--cyan);
+  background: rgba(0, 134, 187, 0.06);
+  border: 1px solid rgba(0, 134, 187, 0.2);
+}
+.exp-action-btn.secondary:hover {
+  background: rgba(0, 134, 187, 0.13);
+  border-color: rgba(0, 134, 187, 0.4);
+  transform: translateY(-1px);
+}
+.exp-action-btn:hover .win-link-icon {
+  transform: translateX(3px);
+}
+.exp-highlights {
+  list-style: none;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  padding: 0;
+  margin: 0;
+}
+.exp-highlights li {
+  position: relative;
+  padding-left: 16px;
+  font-size: 0.84rem;
+  line-height: 1.65;
+  color: var(--text-soft);
+}
+.exp-highlights li::before {
+  content: "";
+  position: absolute;
+  left: 0;
+  top: 0.62em;
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: var(--orange);
+}
+.exp-highlights li strong {
+  color: var(--text-color);
+  font-weight: 700;
+}
+.exp-highlights li code {
+  font-family: "Courier New", Courier, monospace;
+  font-size: 0.78rem;
+  padding: 1px 5px;
+  background: var(--sand-bg);
+  border: 1px solid var(--sand-border);
+  border-radius: 4px;
+  color: var(--text-color);
+}
+.exp-stack {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  padding-top: 14px;
+  border-top: 1px solid var(--sand-border);
+}
+.exp-stack-label {
+  font-size: 0.72rem;
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  color: var(--text-muted);
+}
 
 /* ═══════════ SKILLS WINDOW CONTENT ═══════════ */
 .skills-grid {
@@ -1393,7 +1716,12 @@ watch(
   flex: 1;
 }
 .project-card .badge-list { margin-top: auto; margin-bottom: 0; }
-.project-links { margin-top: 12px; }
+.project-links {
+  margin-top: 12px;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
 .project-links a {
   display: inline-flex;
   align-items: center;
@@ -1511,9 +1839,9 @@ watch(
   align-items: center;
   gap: 6px;
   padding: 6px 10px;
-  background: rgba(245, 239, 230, 0.85);
-  backdrop-filter: blur(32px) saturate(1.4);
-  -webkit-backdrop-filter: blur(32px) saturate(1.4);
+  background: rgba(245, 239, 230, 0.88);
+  backdrop-filter: blur(16px) saturate(1.25);
+  -webkit-backdrop-filter: blur(16px) saturate(1.25);
   border: 1px solid var(--sand-border);
   border-radius: 18px;
   box-shadow: 0 10px 40px rgba(45,42,36,0.12);
@@ -1677,6 +2005,8 @@ watch(
   .about-tags { justify-content: center; }
   .about-stats { grid-template-columns: 1fr; }
   .skills-grid { grid-template-columns: 1fr; }
+  .exp-header { flex-direction: column; }
+  .exp-links { width: 100%; }
 }
 
 @media (max-width: 600px) {
