@@ -33,7 +33,7 @@ const icons: Record<WindowKey, OsIconName> = {
       </li>
       <li class="dock-divider" aria-hidden="true"></li>
       <li>
-        <a class="dock-item" :href="profile.resume" download data-tip="Resume (PDF)">
+        <a class="dock-item" :href="profile.resume" target="_blank" rel="noopener noreferrer" data-tip="Resume (PDF)">
           <OsIcon name="download" :size="22" />
           <span class="visually-hidden">Download resume (PDF)</span>
         </a>

@@ -24,7 +24,8 @@ export const profile = {
   currentRole: "Lead Dev Intern at The Umonics Method",
   education: "BSIT, CIT-University",
   scholar: "DOST-SEI RA 7687",
-  resume: "/Gregory_Ivan_Onyx_Badinas_Resume.pdf",
+  // Hosted on Google Drive so it can be updated without a redeploy; this is the direct-download link.
+  resume: "https://drive.google.com/uc?export=download&id=1FgdkTex6Y0w71JA0R_kv-0tZZEy7WCyy",
 };
 
 export const experience = {
