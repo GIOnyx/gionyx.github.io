@@ -2,6 +2,7 @@ import { MeshBasicMaterial, ShaderMaterial } from "three";
 import { resources } from "../../utils/resources";
 import shadowVertexShader from "../shaders/shadow-catcher/vertex.glsl";
 import shadowFragmentShader from "../shaders/shadow-catcher/fragment.glsl";
+import { screenLightUniforms, withScreenLight } from "./screen-light";
 
 import type { Material } from "three";
 
@@ -14,7 +15,7 @@ export const getRoomMaterial = (): Material => {
   const texture = resources.items["room-texture"];
   texture.flipY = false;
 
-  roomMaterial = new MeshBasicMaterial({ map: texture });
+  roomMaterial = withScreenLight(new MeshBasicMaterial({ map: texture }));
 
   return roomMaterial;
 };
@@ -41,6 +42,7 @@ export const getShadowMaterial = (): ShaderMaterial => {
       uTexture: { value: null },
       uColorBackground: { value: null },
       uColorShadow: { value: null },
+      ...screenLightUniforms,
     },
   });
 

@@ -1,5 +1,5 @@
 import { resources } from "../../../utils/resources";
-import { BufferAttribute, LinearSRGBColorSpace, Mesh, RepeatWrapping, ShaderMaterial } from "three";
+import { BufferAttribute, LinearSRGBColorSpace, Mesh, RepeatWrapping, ShaderMaterial, Vector3 } from "three";
 import { mergeGeometries } from "three/examples/jsm/utils/BufferGeometryUtils.js";
 import { room } from ".";
 import fragmentShader from "../../shaders/desktops/fragment.glsl";
@@ -17,6 +17,41 @@ let material: Material | null = null;
 let geometry: BufferGeometry | null = null;
 
 let messageTween: gsap.core.Tween | null = null;
+/**
+ * Each monitor as a rectangular area light, in the room group's space: centre, facing direction,
+ * and half-extent vectors across and up the screen. The lights-off shading samples these.
+ */
+export interface ScreenLight {
+  center: Vector3;
+  normal: Vector3;
+  right: Vector3;
+  up: Vector3;
+}
+const screens: ScreenLight[] = [];
+// Roughly where the avatar sits; screens face this way.
+const VIEWER = new Vector3(0.6, 2.0, 0.6);
+
+const describeScreen = (geom: BufferGeometry): ScreenLight => {
+  geom.computeBoundingBox();
+  const center = geom.boundingBox!.getCenter(new Vector3());
+  const pos = geom.attributes.position!;
+  const idx = geom.index;
+  const at = (i: number) => new Vector3().fromBufferAttribute(pos, idx ? idx.getX(i) : i);
+  const a = at(0), b = at(1), c = at(2);
+  const normal = b.clone().sub(a).cross(c.clone().sub(a)).normalize();
+  if (normal.dot(VIEWER.clone().sub(center)) < 0) normal.negate();
+
+  const up = new Vector3(0, 1, 0).addScaledVector(normal, -normal.y).normalize();
+  const right = new Vector3().crossVectors(up, normal).normalize();
+  let hw = 0, hh = 0;
+  const v = new Vector3();
+  for (let i = 0; i < pos.count; i++) {
+    v.fromBufferAttribute(pos, i).sub(center);
+    hw = Math.max(hw, Math.abs(v.dot(right)));
+    hh = Math.max(hh, Math.abs(v.dot(up)));
+  }
+  return { center, normal, right: right.multiplyScalar(hw), up: up.multiplyScalar(hh) };
+};
 let scrollInterval: gsap.core.Tween | null = null;
 
 const uniforms = {
@@ -40,6 +75,9 @@ const setupMesh = () => {
 
   geom1.translate(desktop1.position.x, desktop1.position.y, desktop1.position.z);
   geom2.translate(desktop2.position.x, desktop2.position.y, desktop2.position.z);
+
+  screens.length = 0;
+  screens.push(describeScreen(geom1), describeScreen(geom2));
 
   // Add scrollIntensity attribute to geometries
   const scrollIntensity1 = new Float32Array(geom1.attributes.position.count).fill(1);
@@ -127,4 +165,4 @@ const destroy = () => {
   messageTween = null;
 };
 
-export const desktops = { init, destroy, scroll, showMessage };
+export const desktops = { init, destroy, scroll, showMessage, screens };

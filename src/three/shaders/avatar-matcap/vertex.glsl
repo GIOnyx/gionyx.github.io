@@ -2,10 +2,15 @@
 #include ../includes/avatar-progress/vertex.glsl;
 
 varying vec3 vNormal;
+varying vec3 vSLWorldPos;
+varying vec3 vSLWorldNormal;
 varying vec3 vViewPosition;
 
 void main() {
     #include <skinbase_vertex>
+    // Properly skinned normal (bindMatrix-aware, three's own chunks) for the lights-off shading.
+    #include <beginnormal_vertex>
+    #include <skinnormal_vertex>
     #include <begin_vertex>
     #include <skinning_vertex>
 
@@ -22,6 +27,8 @@ void main() {
     vec4 viewPosition = modelViewMatrix * vec4(position, 1.0);
     vViewPosition = viewPosition.xyz;
     vNormal = skinnedNormal.xyz;
+    vSLWorldPos = worldPosition.xyz;
+    vSLWorldNormal = normalize(mat3(modelMatrix) * objectNormal);
 
     vModelProgress = getModelProgress(transformed);
 }

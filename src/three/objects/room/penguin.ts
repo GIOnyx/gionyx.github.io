@@ -72,6 +72,7 @@ const handleClick = () => {
   const tl = gsap.timeline();
 
   playSound("bird");
+  playSound("squeak");
 
   tl.add(() => {
     isJumping = false;
