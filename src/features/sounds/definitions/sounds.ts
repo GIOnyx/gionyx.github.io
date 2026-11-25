@@ -3,6 +3,7 @@ import { Howl } from "howler";
 import type { SoundsData, SoundKey } from "../types";
 
 import soundClick from "../../../assets/sounds/click.mp3";
+import soundSqueak from "../../../assets/sounds/squeak.wav";
 //import soundHover0 from "../../../assets/sounds/hover-0.mp3";
 //import soundHover1 from "../../../assets/sounds/hover-1.mp3";
 //import soundHover2 from "../../../assets/sounds/hover-2.mp3";
@@ -22,6 +23,7 @@ export const sounds = {
   mouseWheel2: { spriteKey: "room", name: "mouse-wheel-2" },
   notification: { spriteKey: "room", name: "notification" },
   snore: { spriteKey: "contact", name: "snore" },
+  squeak: { howl: new Howl({ src: [soundSqueak], loop: false, volume: 0.55, preload: false }) },
 } as const satisfies SoundsData;
 
 export const pools = {

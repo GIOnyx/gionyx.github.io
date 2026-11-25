@@ -1,3 +1,5 @@
+import { litClearColor } from "../common/screen-light";
+import { screenShadows } from "../common/screen-shadows";
 import { WebGLRenderer, Vector3 } from "three";
 import gsap from "gsap";
 import { scene } from "./scene";
@@ -56,7 +58,8 @@ const tick = () => {
   }
 
   const color = sceneWeights.contact > 0.001 ? colors.beigeDark : colors.beigeLight;
-  instance.setClearColor(color);
+  screenShadows.update(instance);
+  instance.setClearColor(litClearColor(color));
   instance.render(scene.instance, camera.instance);
 };
 

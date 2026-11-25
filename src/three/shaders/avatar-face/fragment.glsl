@@ -1,6 +1,8 @@
 #include ../includes/avatar-progress/fragment.glsl;
+#include ../includes/screen-light.glsl;
 
 varying vec2 vUv;
+varying vec3 vSLWorldPos;
 uniform sampler2D uTexture;
 uniform float uFrame;
 
@@ -21,8 +23,9 @@ void main() {
   uv.y = (uv.y + row) / ROWS;
 
   vec4 textureColor = texture2D(uTexture, uv);
+  vec3 slNormal = slFlatNormal(vSLWorldPos);
 
   float progress = getProgress();
 
-  gl_FragColor = vec4(textureColor.rgb, progress * textureColor.a);
+  gl_FragColor = vec4(applyScreenLightFigureSRGB(textureColor.rgb, vSLWorldPos, slNormal), progress * textureColor.a);
 }

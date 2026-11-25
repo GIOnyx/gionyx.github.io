@@ -1,3 +1,4 @@
+import { screenLightUniforms } from "../../common/screen-light";
 import { resources } from "../../../utils/resources";
 import { Mesh, Vector3, Euler, Group, ShaderMaterial, LinearSRGBColorSpace } from "three";
 import { scene } from "../../core/scene";
@@ -24,7 +25,7 @@ const tIdleIntensity = { value: 0 };
 const waypointsPosition = new Vector3();
 const waypointsRotation = new Euler();
 const transform = new Group();
-const uniforms = { uProgress: { value: 0 }, uAmbientStrength: { value: 0 } };
+const uniforms = { uProgress: { value: 0 }, uAmbientStrength: { value: 0 }, ...screenLightUniforms };
 const contactPosition = new Vector3(0, -13, 0);
 const contactRotation = new Euler(0, -Math.PI, 0);
 

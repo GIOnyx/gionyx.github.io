@@ -10,6 +10,9 @@ import { mouse } from "./mouse";
 import { messagePopup } from "./message-popup";
 import { penguin } from "./penguin";
 import { music } from "./music";
+import { lightSwitch } from "./light-switch";
+import { screenLight } from "../../common/screen-light";
+import { screenShadows } from "../../common/screen-shadows";
 
 import type { Object3D } from "three";
 
@@ -36,6 +39,9 @@ const init = () => {
   initObjects();
   shadow.init();
   desktops.init();
+  lightSwitch.init();
+  screenLight.init(desktops.screens, group.matrixWorld);
+  screenShadows.setRoom(group);
   messagePopup.init();
   if (objects?.mouse) mouse.init(objects.mouse);
   if (objects?.penguin)
@@ -100,6 +106,8 @@ const destroy = () => {
   gsap.ticker.remove(tick);
   shadow.destroy();
   desktops.destroy();
+  lightSwitch.destroy();
+  screenLight.destroy();
   mouse.destroy();
   penguin.destroy();
   music.destroy();
