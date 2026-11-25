@@ -63,7 +63,10 @@ const linkLabel = (url: string) => {
       <button type="button" class="btn btn-primary" @click="wm.open('experience')">
         Read the internship write-up <OsIcon name="arrow" :size="16" />
       </button>
-      <a class="btn" :href="profile.resume" download>Download resume <OsIcon name="download" :size="16" /></a>
+      <a class="btn" :href="profile.resume" target="_blank" rel="noopener noreferrer">
+        Download resume <OsIcon name="download" :size="16" />
+        <span class="visually-hidden">(opens in a new tab)</span>
+      </a>
     </div>
   </div>
 

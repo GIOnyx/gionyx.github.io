@@ -98,10 +98,7 @@ const run = (raw: string) => {
       break;
     case "resume": {
       out("dim", "Downloading resume…");
-      const a = document.createElement("a");
-      a.href = profile.resume;
-      a.download = profile.resume.slice(1);
-      a.click();
+      window.open(profile.resume, "_blank", "noopener,noreferrer");
       break;
     }
     case "lights": {
